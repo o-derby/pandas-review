@@ -41,6 +41,8 @@ def tbl_home():
 
     if st.button('Level 1: Basic Selection'):
         go_to('tbl_level1')
+    elif st.button('Level 2: Filtering with `.loc[]`'):
+        go_to('tbl_level2')
 
 def vis_home():
     back_home()
@@ -69,18 +71,70 @@ def tbl_level1():
         'D': "df.loc[2]['Score']"
     }
 
-    answer = st.radio('Select the answer below:', list(options.keys()), format_func=lambda x: options[x], index=None, key='tbl_level1_answer')
+    answer = st.radio(
+        'Select the answer below:', 
+        list(options.keys()), 
+        format_func=lambda x: options[x], 
+        index=None, 
+        key='tbl_level1_answer')
 
-    if answer != None:
-        if st.button('Submit Answer'):
-            if answer == 'A':
-                st.success("Correct! '.loc' uses label indexing, and index 1 refers to the second row.")
-                if st.button('Next Level'):
-                    go_to('tbl_level2')
+    submitted = st.button('Submit Answer', key='submit_lvl1')
 
-            else:
-                st.error("Not quite... Remember that '.loc' uses labels while '.iloc' uses indexs (positions)")
-        
+    if submitted:
+        if answer is None:
+            st.warning("Please select an answer before submitting.")
+        elif answer == 'A':
+            st.success("Correct! `.loc` uses label indexing, and index 1 refers to the second row. Order is row, column.")
+            st.session_state['level1_correct'] = True
+        else:
+            st.error("Not quite... Remember that `.loc` uses labels while `.iloc` uses indexes (positions).")
+
+    if st.session_state.get('level1_correct', False):
+        if st.button('Next Level', key='next_lvl1'):
+            go_to('tbl_level2')
+
+def tbl_level2():
+    back_home()
+    st.header('Level 2: Filtering with `.loc[]`')
+    st.markdown('You are given the following DataFrame (df):')
+
+    sample_df = pd.DataFrame({
+        'Name': ['Oski', 'Cal', 'Bear', 'Oski'],
+        'Score': [99, 93, 95, 91]
+    })
+    st.dataframe(sample_df)
+
+    st.markdown("Which line of code returns **only rows where the name is 'Oski'**?")
+
+    options = {
+        'A': "df.iloc[df['Name'] == 'Oski']",
+        'B': "df['Name'] = 'Oski'",
+        'C': "df.loc['Name' == 'Oski']",
+        'D': "df.loc[df['Name'] == 'Oski']"
+    }
+
+    answer = st.radio(
+        'Select the answer below:',
+        list(options.keys()),
+        format_func=lambda x: options[x],
+        index=None,
+        key='tbl_level2_answer'
+    )
+
+    submitted = st.button('Submit Answer', key='submit_lvl2')
+
+    if submitted:
+        if answer is None:
+            st.warning("Please select an answer before submitting.")
+        elif answer == 'D':
+            st.success("Correct! You're using a Boolean mask with `.loc[]` — solid work.")
+            st.session_state['level2_correct'] = True
+        else:
+            st.error("Nope! Review how Boolean masking works inside `.loc[]`.")
+
+    if st.session_state.get('level2_correct', False):
+        if st.button('Next Level', key='next_lvl2'):
+            go_to('tbl_level3')
 
 if st.session_state.page == 'home':
     home()
@@ -92,3 +146,5 @@ elif st.session_state.page == 'reg_home':
     reg_home()
 elif st.session_state.page == 'tbl_level1':
     tbl_level1()
+elif st.session_state.page == 'tbl_level2':
+    tbl_level2()
