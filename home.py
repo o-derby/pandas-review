@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import seaborn as sns
-import matplotlib as plt
+import matplotlib.pyplot as plt
 
 if 'page' not in st.session_state:
     st.session_state.page = 'home'
@@ -45,11 +45,11 @@ def tbl_home():
         go_to('tbl_level1')
     if st.button('Level 2: Filtering with `.loc[]`'):
         go_to('tbl_level2')
-    if st.button('Level 3: Aggregations with `.groupby()`'):
+    if st.button('Level 3: Selecting Columns'):
         go_to('tbl_level3')
-    if st.button('Level 4: `.apply()` Function'):
+    if st.button('Level 4: Boolean Masking'):
         go_to('tbl_level4')
-    if st.button('Level 5: Sorting and Ordering'):
+    if st.button('Level 5: Using `.isin()`'):
         go_to('tbl_level5')
     if st.button('Level 6: Finding Unique Values'):
         go_to('tbl_level6')
@@ -65,11 +65,46 @@ def vis_home():
     st.header('Review Data Visualization')
     st.subheader('Select What Level To Review:')
 
+    if st.button('Level 1: Basic Histogram'):
+        go_to('vis_level1')
+    if st.button('Level 2: Basic Scatterplot'):
+        go_to('vis_level2')
+    if st.button('Level 3: Boxplot'):
+        go_to('vis_level3')
+    if st.button('Level 4: Lineplot'):
+        go_to('vis_level4')
+    if st.button('Level 5: KDE Plot'):
+        go_to('vis_level5')
+    # Add more levels as needed...
+
 def reg_home():
     back_home()
     st.header('Review Regression Models')
-    st.subheader('Select What Level To Review:')
+    st.subheader('Coming Soon!')
 
+# Helper for asking questions
+def ask_question(options_dict, question_prompt="Select the correct code:", key="question"):
+    return st.radio(
+        question_prompt,
+        list(options_dict.keys()),
+        format_func=lambda x: options_dict[x],
+        index=None,
+        key=key
+    )
+
+# Helper for checking answers with custom comments
+def check_answer(selected, correct_answer_key, right_msg, wrong_msg, session_key='correct'):
+    submitted = st.button('Submit Answer')
+    if submitted:
+        if selected == correct_answer_key:
+            st.success(right_msg)
+            st.session_state[session_key] = True
+        else:
+            st.error(wrong_msg)
+    return st.session_state.get(session_key, False)
+
+
+# Table Levels
 def tbl_level1():
     back_home()
     st.header('Level 1: Basic Selection')
@@ -87,25 +122,18 @@ def tbl_level1():
         'D': "df.loc[2]['Score']"
     }
 
-    answer = st.radio(
-        'Select the answer below:', 
-        list(options.keys()), 
-        format_func=lambda x: options[x], 
-        index=None, 
-        key='tbl_level1_answer')
+    answer = ask_question(options, key='tbl_level1_answer')
 
-    submitted = st.button('Submit Answer', key='submit_lvl1')
+    correct = check_answer(
+        answer,
+        'A',
+        "Correct! `.loc` uses label indexing, so index 1 means the second row, specifying row then column.",
+        "Not quite. `.loc` uses labels, and here the second row is at index 1."
+        ,
+        'level1_correct'
+    )
 
-    if submitted:
-        if answer is None:
-            st.warning("Please select an answer before submitting.")
-        elif answer == 'A':
-            st.success("Correct! `.loc` uses label indexing, and index 1 refers to the second row. Order is row, column.")
-            st.session_state['level1_correct'] = True
-        else:
-            st.error("Not quite... Remember that `.loc` uses labels while `.iloc` uses indexes (positions).")
-
-    if st.session_state.get('level1_correct', False):
+    if correct:
         if st.button('Next Level', key='next_lvl1'):
             go_to('tbl_level2')
 
@@ -129,26 +157,17 @@ def tbl_level2():
         'D': "df.loc[df['Name'] == 'Oski']"
     }
 
-    answer = st.radio(
-        'Select the answer below:',
-        list(options.keys()),
-        format_func=lambda x: options[x],
-        index=None,
-        key='tbl_level2_answer'
+    answer = ask_question(options, key='tbl_level2_answer')
+
+    correct = check_answer(
+        answer,
+        'D',
+        "Correct! Using a Boolean mask inside `.loc[]` filters rows where the condition is True.",
+        "Wrong. `.loc[]` expects a boolean mask for filtering. Review Boolean masking with `.loc[]`.",
+        'level2_correct'
     )
 
-    submitted = st.button('Submit Answer', key='submit_lvl2')
-
-    if submitted:
-        if answer is None:
-            st.warning("Please select an answer before submitting.")
-        elif answer == 'D':
-            st.success("Correct! You're using a Boolean mask with `.loc[]` — solid work.")
-            st.session_state['level2_correct'] = True
-        else:
-            st.error("Nope! Review how Boolean masking works inside `.loc[]`.")
-
-    if st.session_state.get('level2_correct', False):
+    if correct:
         if st.button('Next Level', key='next_lvl2'):
             go_to('tbl_level3')
 
@@ -173,26 +192,17 @@ def tbl_level3():
         'D': "Both B and C"
     }
 
-    answer = st.radio(
-        'Select the answer below:',
-        list(options.keys()),
-        format_func=lambda x: options[x],
-        index=None,
-        key='tbl_level3_answer'
+    answer = ask_question(options, key='tbl_level3_answer')
+
+    correct = check_answer(
+        answer,
+        'D',
+        "Correct! Both `df[['Name', 'Score']]` and `.loc` with all rows and those columns work.",
+        "Not quite. `df[['col1', 'col2']]` and `.loc` slicing are both valid ways.",
+        'level3_correct'
     )
 
-    submitted = st.button('Submit Answer', key='submit_lvl3')
-
-    if submitted:
-        if answer is None:
-            st.warning("Please select an answer before submitting.")
-        elif answer == 'D':
-            st.success("Correct! Both options return a DataFrame with those two columns.")
-            st.session_state['level3_correct'] = True
-        else:
-            st.error("Not quite. Remember: `df[['col1', 'col2']]` is a valid way to get multiple columns.")
-
-    if st.session_state.get('level3_correct', False):
+    if correct:
         if st.button('Next Level', key='next_lvl3'):
             go_to('tbl_level4')
 
@@ -217,26 +227,17 @@ def tbl_level4():
         'D': "df[df['Name'] = 'Oski' & df['Major'] = 'Data']"
     }
 
-    answer = st.radio(
-        'Select the answer below:',
-        list(options.keys()),
-        format_func=lambda x: options[x],
-        index=None,
-        key='tbl_level4_answer'
+    answer = ask_question(options, key='tbl_level4_answer')
+
+    correct = check_answer(
+        answer,
+        'A',
+        "Correct! The `&` operator works elementwise for boolean arrays, with conditions in parentheses.",
+        "Nope. `and` doesn't work elementwise in pandas, and watch out for `=` vs `==`.",
+        'level4_correct'
     )
 
-    submitted = st.button('Submit Answer', key='submit_lvl4')
-
-    if submitted:
-        if answer is None:
-            st.warning("Please select an answer before submitting.")
-        elif answer == 'A':
-            st.success("Correct! The `&` operator works elementwise for boolean arrays. Make sure conditions are wrapped in parentheses.")
-            st.session_state['level4_correct'] = True
-        else:
-            st.error("Nope. `and` doesn't work elementwise in pandas. Also, watch out for assignment (`=`) vs comparison (`==`).")
-
-    if st.session_state.get('level4_correct', False):
+    if correct:
         if st.button('Next Level', key='next_lvl4'):
             go_to('tbl_level5')
 
@@ -260,25 +261,18 @@ def tbl_level5():
         'D': "df.iloc[df['Name'].isin(['Oski', 'Bear'])]"
     }
 
-    answer = st.radio(
-        'Select the answer below:',
-        list(options.keys()),
-        format_func=lambda x: options[x],
-        index=None,
-        key='tbl_level5_answer'
+    answer = ask_question(options, key='tbl_level5_answer')
+
+    correct = check_answer(
+        answer,
+        'B',
+        "Correct! `.isin()` is perfect for checking membership in a list.",
+        "Nope! `.isin()` lets you filter for multiple values inside a list.",
+        'level5_correct'
     )
 
-    submitted = st.button('Submit Answer')
-
-    if submitted:
-        if answer == 'B':
-            st.success("Correct! `.isin()` is perfect for checking membership in a list.")
-            st.session_state['level5_correct'] = True
-        else:
-            st.error("Nope! Try reviewing how `.isin()` works and how it's used inside a filter.")
-
-    if st.session_state.get('level5_correct', False):
-        if st.button('Next Level'):
+    if correct:
+        if st.button('Next Level', key='next_lvl5'):
             go_to('tbl_level6')
 
 def tbl_level6():
@@ -301,25 +295,18 @@ def tbl_level6():
         'D': "df['Name'].nunique()"
     }
 
-    answer = st.radio(
-        'Select the answer below:',
-        list(options.keys()),
-        format_func=lambda x: options[x],
-        index=None,
-        key='tbl_level6_answer'
+    answer = ask_question(options, key='tbl_level6_answer')
+
+    correct = check_answer(
+        answer,
+        'C',
+        "Correct! `.unique()` returns a NumPy array of the unique values.",
+        "Almost! `.unique()` specifically returns unique values as an array.",
+        'level6_correct'
     )
 
-    submitted = st.button('Submit Answer')
-
-    if submitted:
-        if answer == 'C':
-            st.success("Correct! `.unique()` returns a NumPy array of the unique values.")
-            st.session_state['level6_correct'] = True
-        else:
-            st.error("Almost! Some of these are close, but only `.unique()` gives you exactly that result.")
-
-    if st.session_state.get('level6_correct', False):
-        if st.button('Next Level'):
+    if correct:
+        if st.button('Next Level', key='next_lvl6'):
             go_to('tbl_level7')
 
 def tbl_level7():
@@ -343,25 +330,18 @@ def tbl_level7():
         'D': "df.set_index('ID', inplace=True)"
     }
 
-    answer = st.radio(
-        'Select the answer below:',
-        list(options.keys()),
-        format_func=lambda x: options[x],
-        index=None,
-        key='tbl_level7_answer'
+    answer = ask_question(options, key='tbl_level7_answer')
+
+    correct = check_answer(
+        answer,
+        'D',
+        "Correct! `inplace=True` sets the index on the original DataFrame.",
+        "Not quite. You need to set the index inplace or assign the result.",
+        'level7_correct'
     )
 
-    submitted = st.button('Submit Answer')
-
-    if submitted:
-        if answer == 'D':
-            st.success("Correct! Using `inplace=True` updates the original DataFrame.")
-            st.session_state['level7_correct'] = True
-        else:
-            st.error("Not quite! You need to actually set the index, not just assign values to it.")
-
-    if st.session_state.get('level7_correct', False):
-        if st.button('Next Level'):
+    if correct:
+        if st.button('Next Level', key='next_lvl7'):
             go_to('tbl_level8')
 
 def tbl_level8():
@@ -385,25 +365,18 @@ def tbl_level8():
         'D': "df.groupby('Date')['Score'].mean()"
     }
 
-    answer = st.radio(
-        'Select the answer below:',
-        list(options.keys()),
-        format_func=lambda x: options[x],
-        index=None,
-        key='tbl_level8_answer'
+    answer = ask_question(options, key='tbl_level8_answer')
+
+    correct = check_answer(
+        answer,
+        'B',
+        "Nice! `pivot` reshapes with `Date` as index and `Name` as columns.",
+        "Not quite. You want to pivot by `Date` as index and `Name` as columns.",
+        'level8_correct'
     )
 
-    submitted = st.button('Submit Answer')
-
-    if submitted:
-        if answer == 'B':
-            st.success("Nice! Pivoting lets you reshape the DataFrame. `Date` is the index and `Name` becomes columns.")
-            st.session_state['level8_correct'] = True
-        else:
-            st.error("Hmm not quite. You need to reshape with the right index/columns/values setup.")
-
-    if st.session_state.get('level8_correct', False):
-        if st.button('Next Level'):
+    if correct:
+        if st.button('Next Level', key='next_lvl8'):
             go_to('tbl_level9')
 
 def tbl_level9():
@@ -426,54 +399,278 @@ def tbl_level9():
         'D': "B and C"
     }
 
-    answer = st.radio(
-        'Select the answer below:',
-        list(options.keys()),
-        format_func=lambda x: options[x],
-        index=None,
-        key='tbl_level9_answer'
+    answer = ask_question(options, key='tbl_level9_answer')
+
+    correct = check_answer(
+        answer,
+        'D',
+        "Nice! Both `groupby().size()` and `value_counts()` count occurrences.",
+        "Not quite. `groupby().count()` counts non-null entries per column, which might differ.",
+        'level9_correct'
     )
 
-    submitted = st.button('Submit Answer')
-
-    if submitted:
-        if answer == 'D':
-            st.success("Nice! Both `groupby().size()` and `value_counts()` give you what you need.")
-            st.session_state['level9_correct'] = True
-        else:
-            st.error("Not quite! Some options count non-null entries in specific columns.")
-
-    if st.session_state.get('level9_correct', False):
+    if correct:
         if st.button('Back to Table Home'):
             go_to('tbl_home')
 
-if st.session_state.page == 'home':
-    home()
-elif st.session_state.page == 'tbl_home':
-    tbl_home()
-elif st.session_state.page == 'vis_home':
-    vis_home()
-elif st.session_state.page == 'reg_home':
-    reg_home()
 
-elif st.session_state.page == 'tbl_level1':
-    tbl_level1()
-elif st.session_state.page == 'tbl_level2':
-    tbl_level2()
-elif st.session_state.page == 'tbl_level3':
-    tbl_level3()
-elif st.session_state.page == 'tbl_level4':
-    tbl_level4()
-elif st.session_state.page == 'tbl_level5':
-    tbl_level5()
-elif st.session_state.page == 'tbl_level6':
-    tbl_level6()
-elif st.session_state.page == 'tbl_level7':
-    tbl_level7()
-elif st.session_state.page == 'tbl_level8':
-    tbl_level8()
-elif st.session_state.page == 'tbl_level9':
-    tbl_level9()
+# Visualization Levels
+def vis_level1():
+    back_home()
+    st.header('Level 1: Creating a Histogram')
+    st.markdown("You're given the following DataFrame:")
 
-#elif st.session_state.page == 'vis_level1':
-#    vis_level1()
+    tips = pd.DataFrame({
+        'total_bill': [16.99, 10.34, 21.01, 23.68, 24.59],
+        'tip': [1.01, 1.66, 3.50, 3.31, 3.61],
+        'sex': ['Female', 'Male', 'Male', 'Male', 'Female'],
+        'smoker': ['No', 'No', 'No', 'No', 'No'],
+        'day': ['Sun', 'Sun', 'Sun', 'Sun', 'Sun'],
+        'time': ['Dinner', 'Dinner', 'Dinner', 'Dinner', 'Dinner'],
+        'size': [2, 3, 3, 2, 4]
+    })
+
+    st.dataframe(tips)
+
+    st.markdown("Here's the histogram plot:")
+    fig, ax = plt.subplots()
+    sns.histplot(data=tips, x='total_bill', ax=ax)
+    st.pyplot(fig)
+
+    st.markdown("Which line of code would generate this plot?")
+    
+    options = {
+        'A': "sns.histplot(data=tips, x='tip')",
+        'B': "sns.histplot(data=tips, x='total_bill')",
+        'C': "sns.barplot(data=tips, x='total_bill')",
+        'D': "sns.lineplot(data=tips, x='total_bill')"
+    }
+
+    answer = ask_question(options, key='vis_level1_answer')
+
+    correct = check_answer(
+        answer,
+        'B',
+        "Correct! Histogram of `total_bill` matches this plot.",
+        "Nope. The plot shows a histogram of `total_bill`, not `tip` or bar/line plots.",
+        'vis_level1_correct'
+    )
+
+    if correct:
+        if st.button('Next Level'):
+            go_to('vis_level2')
+
+def vis_level2():
+    back_home()
+    st.header("Level 2: Creating a Scatterplot")
+    st.markdown("Given this DataFrame:")
+
+    tips = pd.DataFrame({
+        'total_bill': [16.99, 10.34, 21.01, 23.68, 24.59],
+        'tip': [1.01, 1.66, 3.50, 3.31, 3.61],
+        'sex': ['Female', 'Male', 'Male', 'Male', 'Female'],
+        'smoker': ['No', 'No', 'No', 'No', 'No'],
+        'day': ['Sun', 'Sun', 'Sun', 'Sun', 'Sun'],
+        'time': ['Dinner', 'Dinner', 'Dinner', 'Dinner', 'Dinner'],
+        'size': [2, 3, 3, 2, 4]
+    })
+
+    st.dataframe(tips)
+
+    st.markdown("Here's the scatterplot:")
+    fig, ax = plt.subplots()
+    sns.scatterplot(data=tips, x='total_bill', y='tip', ax=ax)
+    st.pyplot(fig)
+
+    st.markdown("Which line of code would create this plot?")
+
+    options = {
+        'A': "sns.scatterplot(data=tips, x='tip', y='total_bill')",
+        'B': "sns.scatterplot(data=tips, x='total_bill', y='tip')",
+        'C': "sns.lineplot(data=tips, x='total_bill', y='tip')",
+        'D': "sns.barplot(data=tips, x='total_bill', y='tip')"
+    }
+
+    answer = ask_question(options, key='vis_level2_answer')
+
+    correct = check_answer(
+        answer,
+        'B',
+        "Correct! Scatterplot with `total_bill` on x and `tip` on y matches.",
+        "Wrong. Check the axis order and plot type.",
+        'vis_level2_correct'
+    )
+
+    if correct:
+        if st.button('Next Level'):
+            go_to('vis_level3')
+
+def vis_level3():
+    back_home()
+    st.header("Level 3: Boxplot")
+    st.markdown("Here's the DataFrame:")
+
+    tips = pd.DataFrame({
+        'day': ['Sun', 'Sun', 'Sun', 'Sun', 'Sun'],
+        'total_bill': [16.99, 10.34, 21.01, 23.68, 24.59],
+        'tip': [1.01, 1.66, 3.50, 3.31, 3.61]
+    })
+
+    st.dataframe(tips)
+
+    st.markdown("Here's the boxplot:")
+
+    fig, ax = plt.subplots()
+    sns.boxplot(data=tips, x='day', y='total_bill', ax=ax)
+    st.pyplot(fig)
+
+    st.markdown("Which line of code would create this boxplot?")
+
+    options = {
+        'A': "sns.boxplot(data=tips, x='day', y='tip')",
+        'B': "sns.boxplot(data=tips, x='day', y='total_bill')",
+        'C': "sns.barplot(data=tips, x='day', y='total_bill')",
+        'D': "sns.boxplot(data=tips, x='total_bill', y='day')"
+    }
+
+    answer = ask_question(options, key='vis_level3_answer')
+
+    correct = check_answer(
+        answer,
+        'B',
+        "Correct! Boxplot shows `total_bill` by `day`.",
+        "Wrong. Axis assignment matters here for the boxplot.",
+        'vis_level3_correct'
+    )
+
+    if correct:
+        if st.button('Next Level'):
+            go_to('vis_level4')
+
+def vis_level4():
+    back_home()
+    st.header("Level 4: Lineplot")
+    st.markdown("DataFrame:")
+
+    df = pd.DataFrame({
+        'day': [1, 2, 3, 4, 5],
+        'sales': [5, 10, 7, 12, 9]
+    })
+
+    st.dataframe(df)
+
+    st.markdown("Lineplot:")
+
+    fig, ax = plt.subplots()
+    sns.lineplot(data=df, x='day', y='sales', ax=ax)
+    st.pyplot(fig)
+
+    st.markdown("Which line creates this lineplot?")
+
+    options = {
+        'A': "sns.lineplot(data=df, x='day', y='sales')",
+        'B': "sns.scatterplot(data=df, x='day', y='sales')",
+        'C': "sns.histplot(data=df, x='day')",
+        'D': "sns.barplot(data=df, x='day', y='sales')"
+    }
+
+    answer = ask_question(options, key='vis_level4_answer')
+
+    correct = check_answer(
+        answer,
+        'A',
+        "Right! `lineplot` for sales over days.",
+        "Nope. This plot is a line plot, not scatter or bar.",
+        'vis_level4_correct'
+    )
+
+    if correct:
+        if st.button('Next Level'):
+            go_to('vis_level5')
+
+def vis_level5():
+    back_home()
+    st.header("Level 5: KDE Plot")
+    st.markdown("DataFrame:")
+
+    df = pd.DataFrame({
+        'value': [1, 2, 2, 3, 3, 3, 4, 4, 5]
+    })
+
+    st.dataframe(df)
+
+    st.markdown("KDE plot:")
+
+    fig, ax = plt.subplots()
+    sns.kdeplot(data=df, x='value', ax=ax)
+    st.pyplot(fig)
+
+    st.markdown("Which line creates this KDE plot?")
+
+    options = {
+        'A': "sns.kdeplot(data=df, x='value')",
+        'B': "sns.histplot(data=df, x='value')",
+        'C': "sns.lineplot(data=df, x='value')",
+        'D': "sns.boxplot(data=df, x='value')"
+    }
+
+    answer = ask_question(options, key='vis_level5_answer')
+
+    correct = check_answer(
+        answer,
+        'A',
+        "Correct! `kdeplot` creates the smooth density estimate.",
+        "Nope. This plot is a KDE, not histogram or boxplot.",
+        'vis_level5_correct'
+    )
+
+    if correct:
+        if st.button('Back to Visualization Home'):
+            go_to('vis_home')
+
+# Main app routing
+def main():
+    page = st.session_state.page
+
+    if page == 'home':
+        home()
+    elif page == 'tbl_home':
+        tbl_home()
+    elif page == 'tbl_level1':
+        tbl_level1()
+    elif page == 'tbl_level2':
+        tbl_level2()
+    elif page == 'tbl_level3':
+        tbl_level3()
+    elif page == 'tbl_level4':
+        tbl_level4()
+    elif page == 'tbl_level5':
+        tbl_level5()
+    elif page == 'tbl_level6':
+        tbl_level6()
+    elif page == 'tbl_level7':
+        tbl_level7()
+    elif page == 'tbl_level8':
+        tbl_level8()
+    elif page == 'tbl_level9':
+        tbl_level9()
+    elif page == 'vis_home':
+        vis_home()
+    elif page == 'vis_level1':
+        vis_level1()
+    elif page == 'vis_level2':
+        vis_level2()
+    elif page == 'vis_level3':
+        vis_level3()
+    elif page == 'vis_level4':
+        vis_level4()
+    elif page == 'vis_level5':
+        vis_level5()
+    elif page == 'reg_home':
+        reg_home()
+    else:
+        st.write("Unknown page, returning home.")
+        go_to('home')
+
+if __name__ == '__main__':
+    main()
