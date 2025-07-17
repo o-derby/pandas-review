@@ -1,5 +1,7 @@
 import streamlit as st
 import pandas as pd
+import seaborn as sns
+import matplotlib as plt
 
 if 'page' not in st.session_state:
     st.session_state.page = 'home'
@@ -319,6 +321,131 @@ def tbl_level6():
     if st.session_state.get('level6_correct', False):
         if st.button('Next Level'):
             go_to('tbl_level7')
+
+def tbl_level7():
+    back_home()
+    st.header("Level 7: Changing the Index")
+    st.markdown("You are given this DataFrame (df):")
+
+    sample_df = pd.DataFrame({
+        'ID': [101, 102, 103],
+        'Name': ['Oski', 'Cal', 'Bear'],
+        'Score': [99, 93, 95]
+    })
+    st.dataframe(sample_df)
+
+    st.markdown("Which line sets the 'ID' column as the index?")
+
+    options = {
+        'A': "df.index = df['ID']",
+        'B': "df.set_index('ID')",
+        'C': "df.set_index('ID', inplace=False)",
+        'D': "df.set_index('ID', inplace=True)"
+    }
+
+    answer = st.radio(
+        'Select the answer below:',
+        list(options.keys()),
+        format_func=lambda x: options[x],
+        index=None,
+        key='tbl_level7_answer'
+    )
+
+    submitted = st.button('Submit Answer')
+
+    if submitted:
+        if answer == 'D':
+            st.success("Correct! Using `inplace=True` updates the original DataFrame.")
+            st.session_state['level7_correct'] = True
+        else:
+            st.error("Not quite! You need to actually set the index, not just assign values to it.")
+
+    if st.session_state.get('level7_correct', False):
+        if st.button('Next Level'):
+            go_to('tbl_level8')
+
+def tbl_level8():
+    back_home()
+    st.header("Level 8: Pivoting Columns")
+    st.markdown("You are given this DataFrame (df):")
+
+    sample_df = pd.DataFrame({
+        'Date': ['2024-01-01', '2024-01-01', '2024-01-02'],
+        'Name': ['Oski', 'Cal', 'Oski'],
+        'Score': [99, 88, 95]
+    })
+    st.dataframe(sample_df)
+
+    st.markdown("Which line transforms the DataFrame to have one row per date and names as columns?")
+
+    options = {
+        'A': "df.pivot(index='Name', columns='Date', values='Score')",
+        'B': "df.pivot(index='Date', columns='Name', values='Score')",
+        'C': "df.pivot_table(index='Date', columns='Score', values='Name')",
+        'D': "df.groupby('Date')['Score'].mean()"
+    }
+
+    answer = st.radio(
+        'Select the answer below:',
+        list(options.keys()),
+        format_func=lambda x: options[x],
+        index=None,
+        key='tbl_level8_answer'
+    )
+
+    submitted = st.button('Submit Answer')
+
+    if submitted:
+        if answer == 'B':
+            st.success("Nice! Pivoting lets you reshape the DataFrame. `Date` is the index and `Name` becomes columns.")
+            st.session_state['level8_correct'] = True
+        else:
+            st.error("Hmm not quite. You need to reshape with the right index/columns/values setup.")
+
+    if st.session_state.get('level8_correct', False):
+        if st.button('Next Level'):
+            go_to('tbl_level9')
+
+def tbl_level9():
+    back_home()
+    st.header("Level 9: Grouping and Counting")
+    st.markdown("You are given this DataFrame (df):")
+
+    sample_df = pd.DataFrame({
+        'Name': ['Oski', 'Cal', 'Bear', 'Oski', 'Oski'],
+        'Passed': [True, False, True, True, False]
+    })
+    st.dataframe(sample_df)
+
+    st.markdown("Which line gives a count of how many times each name appears?")
+
+    options = {
+        'A': "df.groupby('Name').count()",
+        'B': "df.groupby('Name').size()",
+        'C': "df['Name'].value_counts()",
+        'D': "B and C"
+    }
+
+    answer = st.radio(
+        'Select the answer below:',
+        list(options.keys()),
+        format_func=lambda x: options[x],
+        index=None,
+        key='tbl_level9_answer'
+    )
+
+    submitted = st.button('Submit Answer')
+
+    if submitted:
+        if answer == 'D':
+            st.success("Nice! Both `groupby().size()` and `value_counts()` give you what you need.")
+            st.session_state['level9_correct'] = True
+        else:
+            st.error("Not quite! Some options count non-null entries in specific columns.")
+
+    if st.session_state.get('level9_correct', False):
+        if st.button('Back to Table Home'):
+            go_to('tbl_home')
 
 if st.session_state.page == 'home':
     home()
