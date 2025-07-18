@@ -75,7 +75,14 @@ def vis_home():
         go_to('vis_level4')
     if st.button('Level 5: KDE Plot'):
         go_to('vis_level5')
-    # Add more levels as needed...
+    if st.button('Level 6: KDE Plot'):
+        go_to('vis_level6')
+    if st.button('Level 7: KDE Plot'):
+        go_to('vis_level7')
+    if st.button('Level 8: KDE Plot'):
+        go_to('vis_level8')
+    if st.button('Level 9: KDE Plot'):
+        go_to('vis_level9')
 
 def reg_home():
     back_home()
@@ -625,6 +632,201 @@ def vis_level5():
     )
 
     if correct:
+        if st.button('Next Level'):
+            go_to('vis_level6')
+
+def vis_level6():
+    back_home()
+    st.header("Level 6: Barplot with Filtering and Color Grouping")
+    st.markdown("Given this DataFrame:")
+
+    tips = pd.DataFrame({
+        'total_bill': [16.99, 10.34, 21.01, 23.68, 24.59, 30.14, 12.34],
+        'tip': [1.01, 1.66, 3.50, 3.31, 3.61, 5.00, 1.20],
+        'sex': ['Female', 'Male', 'Male', 'Male', 'Female', 'Male', 'Female'],
+        'smoker': ['No', 'No', 'No', 'No', 'No', 'Yes', 'Yes'],
+        'day': ['Sun', 'Sun', 'Sun', 'Sun', 'Sun', 'Sat', 'Sat'],
+        'time': ['Dinner', 'Dinner', 'Dinner', 'Dinner', 'Dinner', 'Dinner', 'Lunch'],
+        'size': [2, 3, 3, 2, 4, 4, 2]
+    })
+
+    st.dataframe(tips)
+
+    st.markdown(
+        "Here's the barplot showing average tip by day, grouped by smoker status, "
+        "but only for Dinner time:"
+    )
+
+    filtered = tips[tips['time'] == 'Dinner']
+    fig, ax = plt.subplots()
+    sns.barplot(data=filtered, x='day', y='tip', hue='smoker', ax=ax)
+    st.pyplot(fig)
+
+    st.markdown("Which of the following lines generates this plot?")
+
+    options = {
+        'A': "sns.barplot(data=tips, x='day', y='tip', hue='smoker')",
+        'B': "sns.barplot(data=tips[tips['time']=='Dinner'], x='day', y='tip', hue='smoker')",
+        'C': "sns.barplot(data=tips, x='day', y='tip')",
+        'D': "sns.barplot(data=tips[tips['smoker']=='No'], x='day', y='tip', hue='time')"
+    }
+
+    answer = ask_question(options, key='vis_level6_answer')
+    submitted = st.button('Submit Answer')
+    if submitted:
+        if answer == 'B':
+            st.success("Correct! Filtering first with `[tips['time']=='Dinner']` then grouping with `hue='smoker'` is exactly right.")
+            st.session_state['vis_level6_correct'] = True
+        else:
+            st.error("Close but no. Remember, the data was filtered by Dinner only before plotting.")
+
+    if st.session_state.get('vis_level6_correct', False):
+        if st.button('Next Level'):
+            go_to('vis_level7')
+
+def vis_level7():
+    back_home()
+    st.header("Level 7: Boxplot with Hue and Row Filtering")
+    st.markdown("Given this DataFrame:")
+
+    tips = pd.DataFrame({
+        'total_bill': [16.99, 10.34, 21.01, 23.68, 24.59, 30.14, 12.34, 15.20],
+        'tip': [1.01, 1.66, 3.50, 3.31, 3.61, 5.00, 1.20, 2.00],
+        'sex': ['Female', 'Male', 'Male', 'Male', 'Female', 'Male', 'Female', 'Female'],
+        'smoker': ['No', 'No', 'No', 'No', 'No', 'Yes', 'Yes', 'No'],
+        'day': ['Sun', 'Sun', 'Sun', 'Sun', 'Sun', 'Sat', 'Sat', 'Fri'],
+        'time': ['Dinner', 'Dinner', 'Dinner', 'Dinner', 'Dinner', 'Dinner', 'Lunch', 'Lunch'],
+        'size': [2, 3, 3, 2, 4, 4, 2, 2]
+    })
+
+    st.dataframe(tips)
+
+    st.markdown(
+        "Here's the boxplot showing total bills by day, grouped by smoker, "
+        "but only for days that are not Sunday:"
+    )
+
+    filtered = tips[tips['day'] != 'Sun']
+    fig, ax = plt.subplots()
+    sns.boxplot(data=filtered, x='day', y='total_bill', hue='smoker', ax=ax)
+    st.pyplot(fig)
+
+    st.markdown("Which line of code would generate this plot?")
+
+    options = {
+        'A': "sns.boxplot(data=tips, x='day', y='total_bill', hue='smoker')",
+        'B': "sns.boxplot(data=tips[tips['day']!='Sun'], x='day', y='total_bill', hue='smoker')",
+        'C': "sns.violinplot(data=tips[tips['day']=='Sun'], x='day', y='total_bill', hue='smoker')",
+        'D': "sns.boxplot(data=tips[tips['smoker']=='No'], x='day', y='total_bill')"
+    }
+
+    answer = ask_question(options, key='vis_level7_answer')
+    submitted = st.button('Submit Answer')
+    if submitted:
+        if answer == 'B':
+            st.success("Good job! Filtering out Sundays and grouping by smoker status is exactly the trick.")
+            st.session_state['vis_level7_correct'] = True
+        else:
+            st.error("Not quite. Remember the plot excludes Sundays and uses `hue='smoker'`.")
+
+    if st.session_state.get('vis_level7_correct', False):
+        if st.button('Next Level'):
+            go_to('vis_level8')
+
+def vis_level8():
+    back_home()
+    st.header("Level 8: Heatmap from Pivoted Data")
+    st.markdown("Given this DataFrame:")
+
+    flights = pd.DataFrame({
+        'year': [1950, 1950, 1951, 1951, 1952, 1952],
+        'month': [1, 2, 1, 2, 1, 2],
+        'passengers': [112, 118, 132, 129, 144, 140]
+    })
+
+    st.dataframe(flights)
+
+    st.markdown("Here's the heatmap showing passengers by year and month:")
+
+    pivot = flights.pivot(index='year', columns='month', values='passengers')
+
+    fig, ax = plt.subplots()
+    sns.heatmap(pivot, annot=True, fmt="d", cmap="YlGnBu", ax=ax)
+    st.pyplot(fig)
+
+    st.markdown("Which line creates this heatmap?")
+
+    options = {
+        'A': "sns.heatmap(flights, annot=True, fmt='d')",
+        'B': "sns.heatmap(flights.pivot(index='year', columns='month', values='passengers'), annot=True, fmt='d', cmap='YlGnBu')",
+        'C': "sns.heatmap(flights.pivot(index='month', columns='year', values='passengers'), annot=True)",
+        'D': "sns.heatmap(flights.pivot_table(index='year', columns='month', values='passengers'), cmap='viridis')"
+    }
+
+    answer = ask_question(options, key='vis_level8_answer')
+    submitted = st.button('Submit Answer')
+    if submitted:
+        if answer == 'B':
+            st.success("Exactly! Pivot the data by year and month, then plot with YlGnBu colormap.")
+            st.session_state['vis_level8_correct'] = True
+        else:
+            st.error("Nope. Remember to pivot correctly for index=year and columns=month with passengers as values.")
+
+    if st.session_state.get('vis_level8_correct', False):
+        if st.button('Next Level'):
+            go_to('vis_level9')
+
+def vis_level9():
+    back_home()
+    st.header("Level 9: Scatterplot with Color and Size Mapping")
+    st.markdown("Given this DataFrame:")
+
+    tips = pd.DataFrame({
+        'total_bill': [16.99, 10.34, 21.01, 23.68, 24.59, 30.14, 12.34, 15.20, 20.50],
+        'tip': [1.01, 1.66, 3.50, 3.31, 3.61, 5.00, 1.20, 2.00, 3.00],
+        'sex': ['Female', 'Male', 'Male', 'Male', 'Female', 'Male', 'Female', 'Female', 'Male'],
+        'smoker': ['No', 'No', 'No', 'No', 'No', 'Yes', 'Yes', 'No', 'No'],
+        'day': ['Sun', 'Sun', 'Sun', 'Sun', 'Sun', 'Sat', 'Sat', 'Fri', 'Fri'],
+        'time': ['Dinner', 'Dinner', 'Dinner', 'Dinner', 'Dinner', 'Dinner', 'Lunch', 'Lunch', 'Lunch'],
+        'size': [2, 3, 3, 2, 4, 4, 2, 2, 3]
+    })
+
+    st.dataframe(tips)
+
+    st.markdown(
+        "Here's the scatterplot where:\n"
+        "- X is total_bill\n"
+        "- Y is tip\n"
+        "- Color (hue) shows smoker status\n"
+        "- Size of points is the party size\n"
+        "Only Dinner time rows are shown."
+    )
+
+    filtered = tips[tips['time'] == 'Dinner']
+
+    fig, ax = plt.subplots()
+    sns.scatterplot(data=filtered, x='total_bill', y='tip', hue='smoker', size='size', ax=ax)
+    st.pyplot(fig)
+
+    st.markdown("Which line of code generates this plot?")
+
+    options = {
+        'A': "sns.scatterplot(data=tips, x='total_bill', y='tip', hue='smoker', size='size')",
+        'B': "sns.scatterplot(data=tips[tips['time']=='Dinner'], x='total_bill', y='tip', hue='smoker', size='size')",
+        'C': "sns.scatterplot(data=tips, x='total_bill', y='tip')",
+        'D': "sns.scatterplot(data=tips[tips['time']=='Lunch'], x='total_bill', y='tip', hue='smoker', size='size')"
+    }
+
+    answer = ask_question(options, key='vis_level9_answer')
+    submitted = st.button('Submit Answer')
+    if submitted:
+        if answer == 'B':
+            st.success("Correct! You filtered for Dinner, and mapped color and size accordingly.")
+            st.session_state['vis_level9_correct'] = True
+        else:
+            st.error("Not quite. Don't forget to filter by Dinner time before plotting.")
+
+    if st.session_state.get('vis_level9_correct', False):
         if st.button('Back to Visualization Home'):
             go_to('vis_home')
 
@@ -666,11 +868,19 @@ def main():
         vis_level4()
     elif page == 'vis_level5':
         vis_level5()
+    elif page == 'vis_level6':
+        vis_level6()
+    elif page == 'vis_level7':
+        vis_level7()
+    elif page == 'vis_level8':
+        vis_level8()
+    elif page == 'vis_level9':
+        vis_level9()
     elif page == 'reg_home':
         reg_home()
     else:
         st.write("Unknown page, returning home.")
         go_to('home')
 
-if __name__ == '__main__':
-    main()
+# if __name__ == '__main__': (Don't really need this maybe but potentially cleaner???)
+main()
