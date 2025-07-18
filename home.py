@@ -87,7 +87,26 @@ def vis_home():
 def reg_home():
     back_home()
     st.header('Review Regression Models')
-    st.subheader('Coming Soon!')
+    st.subheader('Select What level to Review:')
+
+    if st.button('Level 1: '):
+        go_to('reg_level1')
+    if st.button('Level 2: '):
+        go_to('vis_level2')
+    if st.button('Level 3: '):
+        go_to('vis_level3')
+    if st.button('Level 4: '):
+        go_to('vis_level4')
+    if st.button('Level 5: '):
+        go_to('vis_level5')
+    if st.button('Level 6:'):
+        go_to('vis_level6')
+    if st.button('Level 7: '):
+        go_to('vis_level7')
+    if st.button('Level 8: '):
+        go_to('vis_level8')
+    if st.button('Level 9: '):
+        go_to('vis_level9')
 
 # Helper for asking questions
 def ask_question(options_dict, question_prompt="Select the correct code:", key="question"):
@@ -830,6 +849,44 @@ def vis_level9():
         if st.button('Back to Visualization Home'):
             go_to('vis_home')
 
+def reg_level1():
+    back_home()
+    st.header('Level 1: Linear Regression with lmplot')
+
+    st.markdown("You're given this dataset:")
+
+    df = pd.read_csv('data/tips.csv')
+    st.dataframe(df[['total_bill', 'tip']].head())
+
+    st.markdown("Here’s a regression plot:")
+
+    fig = sns.lmplot(data=df, x='total_bill', y='tip')
+    st.pyplot(fig)
+
+    st.markdown("Which code generates this plot?")
+
+    options = {
+        'A': "sns.lmplot(data=df, x='tip', y='total_bill')",
+        'B': "sns.lineplot(data=df, x='total_bill', y='tip')",
+        'C': "sns.lmplot(data=df, x='total_bill', y='tip')",
+        'D': "sns.histplot(data=df, x='total_bill', y='tip')"
+    }
+
+    answer = st.radio("Select the correct code:", list(options.keys()),
+                      format_func=lambda x: options[x], index=None, key="reg1_ans")
+    
+    if st.button("Submit"):
+        if answer == 'C':
+            st.success("Correct! `lmplot` fits a regression line for `x='total_bill'`, `y='tip'`.")
+            st.session_state['reg1_correct'] = True
+        else:
+            st.error("Not quite — look for the plot type and the right variable order.")
+    
+    if st.session_state.get('reg1_correct', False):
+        if st.button("Next Level"):
+            go_to('reg_level2')
+
+
 # Main app routing
 def main():
     page = st.session_state.page
@@ -878,6 +935,8 @@ def main():
         vis_level9()
     elif page == 'reg_home':
         reg_home()
+    elif page == 'reg_level1':
+        reg_level1()
     else:
         st.write("Unknown page, returning home.")
         go_to('home')
