@@ -75,13 +75,13 @@ def vis_home():
         go_to('vis_level4')
     if st.button('Level 5: KDE Plot'):
         go_to('vis_level5')
-    if st.button('Level 6: KDE Plot'):
+    if st.button('Level 6: Barplot'):
         go_to('vis_level6')
-    if st.button('Level 7: KDE Plot'):
+    if st.button('Level 7: Boxplot'):
         go_to('vis_level7')
     if st.button('Level 8: KDE Plot'):
         go_to('vis_level8')
-    if st.button('Level 9: KDE Plot'):
+    if st.button('Level 9: Color and Size Mapping'):
         go_to('vis_level9')
 
 def reg_home():
@@ -89,24 +89,24 @@ def reg_home():
     st.header('Review Regression Models')
     st.subheader('Select What level to Review:')
 
-    if st.button('Level 1: '):
+    if st.button('Level 1: Simple Regression with lmplot'):
         go_to('reg_level1')
-    if st.button('Level 2: '):
-        go_to('vis_level2')
-    if st.button('Level 3: '):
-        go_to('vis_level3')
-    if st.button('Level 4: '):
-        go_to('vis_level4')
-    if st.button('Level 5: '):
-        go_to('vis_level5')
-    if st.button('Level 6:'):
-        go_to('vis_level6')
-    if st.button('Level 7: '):
-        go_to('vis_level7')
-    if st.button('Level 8: '):
-        go_to('vis_level8')
-    if st.button('Level 9: '):
-        go_to('vis_level9')
+    if st.button('Level 2: Regression with Hue'):
+        go_to('reg_level2')
+    if st.button('Level 3: Multiple Regression with Scikit-learn'):
+        go_to('reg_level3')
+    if st.button('Level 4: Train Test Split'):
+        go_to('reg_level4')
+    if st.button('Level 5: R² Score'):
+        go_to('reg_level5')
+    if st.button('Level 6: MAE'):
+        go_to('reg_level6')
+    if st.button('Level 7: Applying Log Transformation'):
+        go_to('reg_level7')
+    if st.button('Level 8: Minimizing Residual Error'):
+        go_to('reg_level8')
+    if st.button('Level 9: Visualizing Regression Fit'):
+        go_to('reg_level9')
 
 # Helper for asking questions
 def ask_question(options_dict, question_prompt="Select the correct code:", key="question"):
@@ -512,16 +512,16 @@ def vis_level2():
 
     options = {
         'A': "sns.scatterplot(data=tips, x='tip', y='total_bill')",
-        'B': "sns.scatterplot(data=tips, x='total_bill', y='tip')",
+        'B': "sns.barplot(data=tips, x='total_bill', y='tip')",
         'C': "sns.lineplot(data=tips, x='total_bill', y='tip')",
-        'D': "sns.barplot(data=tips, x='total_bill', y='tip')"
+        'D': "sns.scatterplot(data=tips, x='total_bill', y='tip')"
     }
 
     answer = ask_question(options, key='vis_level2_answer')
 
     correct = check_answer(
         answer,
-        'B',
+        'D',
         "Correct! Scatterplot with `total_bill` on x and `tip` on y matches.",
         "Wrong. Check the axis order and plot type.",
         'vis_level2_correct'
@@ -685,15 +685,15 @@ def vis_level6():
 
     options = {
         'A': "sns.barplot(data=tips, x='day', y='tip', hue='smoker')",
-        'B': "sns.barplot(data=tips[tips['time']=='Dinner'], x='day', y='tip', hue='smoker')",
-        'C': "sns.barplot(data=tips, x='day', y='tip')",
+        'B': "sns.barplot(data=tips, x='day', y='tip')",
+        'C': "sns.barplot(data=tips[tips['time']=='Dinner'], x='day', y='tip', hue='smoker')",
         'D': "sns.barplot(data=tips[tips['smoker']=='No'], x='day', y='tip', hue='time')"
     }
 
     answer = ask_question(options, key='vis_level6_answer')
     submitted = st.button('Submit Answer')
     if submitted:
-        if answer == 'B':
+        if answer == 'C':
             st.success("Correct! Filtering first with `[tips['time']=='Dinner']` then grouping with `hue='smoker'` is exactly right.")
             st.session_state['vis_level6_correct'] = True
         else:
@@ -831,15 +831,15 @@ def vis_level9():
 
     options = {
         'A': "sns.scatterplot(data=tips, x='total_bill', y='tip', hue='smoker', size='size')",
-        'B': "sns.scatterplot(data=tips[tips['time']=='Dinner'], x='total_bill', y='tip', hue='smoker', size='size')",
+        'B': "sns.scatterplot(data=tips[tips['time']=='Lunch'], x='total_bill', y='tip', hue='smoker', size='size')",
         'C': "sns.scatterplot(data=tips, x='total_bill', y='tip')",
-        'D': "sns.scatterplot(data=tips[tips['time']=='Lunch'], x='total_bill', y='tip', hue='smoker', size='size')"
+        'D': "sns.scatterplot(data=tips[tips['time']=='Dinner'], x='total_bill', y='tip', hue='smoker', size='size')"
     }
 
     answer = ask_question(options, key='vis_level9_answer')
     submitted = st.button('Submit Answer')
     if submitted:
-        if answer == 'B':
+        if answer == 'D':
             st.success("Correct! You filtered for Dinner, and mapped color and size accordingly.")
             st.session_state['vis_level9_correct'] = True
         else:
@@ -886,60 +886,305 @@ def reg_level1():
         if st.button("Next Level"):
             go_to('reg_level2')
 
+def reg_level2():
+    back_home()
+    st.header('Level 2: Regression with Hue')
 
-# Main app routing
-def main():
-    page = st.session_state.page
+    df = pd.read_csv('data/tips.csv')
+    st.dataframe(df[['total_bill', 'tip', 'sex']].head())
 
-    if page == 'home':
-        home()
-    elif page == 'tbl_home':
-        tbl_home()
-    elif page == 'tbl_level1':
-        tbl_level1()
-    elif page == 'tbl_level2':
-        tbl_level2()
-    elif page == 'tbl_level3':
-        tbl_level3()
-    elif page == 'tbl_level4':
-        tbl_level4()
-    elif page == 'tbl_level5':
-        tbl_level5()
-    elif page == 'tbl_level6':
-        tbl_level6()
-    elif page == 'tbl_level7':
-        tbl_level7()
-    elif page == 'tbl_level8':
-        tbl_level8()
-    elif page == 'tbl_level9':
-        tbl_level9()
-    elif page == 'vis_home':
-        vis_home()
-    elif page == 'vis_level1':
-        vis_level1()
-    elif page == 'vis_level2':
-        vis_level2()
-    elif page == 'vis_level3':
-        vis_level3()
-    elif page == 'vis_level4':
-        vis_level4()
-    elif page == 'vis_level5':
-        vis_level5()
-    elif page == 'vis_level6':
-        vis_level6()
-    elif page == 'vis_level7':
-        vis_level7()
-    elif page == 'vis_level8':
-        vis_level8()
-    elif page == 'vis_level9':
-        vis_level9()
-    elif page == 'reg_home':
-        reg_home()
-    elif page == 'reg_level1':
-        reg_level1()
-    else:
-        st.write("Unknown page, returning home.")
-        go_to('home')
+    fig = sns.lmplot(data=df, x='total_bill', y='tip', hue='sex')
+    st.pyplot(fig)
 
-# if __name__ == '__main__': (Don't really need this maybe but potentially cleaner???)
-main()
+    st.markdown("Which code adds color based on sex?")
+
+    options = {
+        'A': "sns.lmplot(data=df, x='total_bill', y='tip')",
+        'B': "sns.lmplot(data=df, x='total_bill', y='tip', color='sex')",
+        'C': "sns.lmplot(data=df, x='total_bill', y='tip', hue='sex')",
+        'D': "sns.lmplot(data=df, x='tip', y='total_bill', hue='sex')"
+    }
+
+    answer = st.radio("Select the correct code:", list(options.keys()),
+                      format_func=lambda x: options[x], index=None, key="reg2_ans")
+    
+    if st.button("Submit"):
+        if answer == 'C':
+            st.success("Yep! `hue='sex'` splits the regression by color.")
+            st.session_state['reg2_correct'] = True
+        else:
+            st.error("Nope — watch out for `color` vs `hue`, and variable order.")
+
+    if st.session_state.get('reg2_correct', False):
+        if st.button("Next Level"):
+            go_to('reg_level3')
+
+def reg_level3():
+    back_home()
+    st.header('Level 3: Multiple Regression with Scikit-learn')
+
+    st.markdown("You fit a model using scikit-learn:")
+    st.code("LinearRegression().fit(X[['total_bill', 'size']], y)", language='python')
+
+    st.markdown("What are `X` and `y` in this case?")
+
+    options = {
+        'A': "X = df[['tip']], y = df['total_bill']",
+        'B': "X = df[['total_bill', 'size']], y = df['tip']",
+        'C': "X = df['tip'], y = df[['total_bill', 'size']]",
+        'D': "X = df[['size']], y = df['tip']"
+    }
+
+    answer = st.radio("Select the correct definition:", list(options.keys()),
+                      format_func=lambda x: options[x], index=None, key="reg3_ans")
+    
+    if st.button("Submit"):
+        if answer == 'B':
+            st.success("Nice! That's multiple regression with two features predicting `tip`.")
+            st.session_state['reg3_correct'] = True
+        else:
+            st.error("Not quite — pay attention to which columns go in `X` vs `y`.")
+
+    if st.session_state.get('reg3_correct', False):
+        if st.button("Next Level"):
+            go_to('reg_level4')
+
+def reg_level4():
+    back_home()
+    st.header('Level 4: Train-Test Split')
+
+    st.markdown("What's the purpose of using `train_test_split(X, y, test_size=0.2)`?")
+
+    options = {
+        'A': "It trains your model 20 times.",
+        'B': "It keeps 20% of the data for testing.",
+        'C': "It balances class labels.",
+        'D': "It ensures your data is sorted."
+    }
+
+    answer = st.radio("Choose the best explanation:", list(options.keys()),
+                      format_func=lambda x: options[x], index=None, key="reg4_ans")
+    
+    if st.button("Submit"):
+        if answer == 'B':
+            st.success("Exactly — 20% held out for evaluation!")
+            st.session_state['reg4_correct'] = True
+        else:
+            st.error("Try again — this is a core part of testing model generalization.")
+
+    if st.session_state.get('reg4_correct', False):
+        if st.button("Next Level"):
+            go_to('reg_level5')
+
+def reg_level5():
+    back_home()
+    st.header('Level 5: R² Score')
+
+    st.markdown("You train a model and evaluate it with `r2_score(y_test, y_pred)`.")
+
+    st.markdown("If your model gets an R² of 0.82, what does that mean?")
+
+    options = {
+        'A': "82% of variance in the target is explained by the model.",
+        'B': "The model is 82% accurate.",
+        'C': "82% of predictions are correct.",
+        'D': "The model made 82 predictions correctly."
+    }
+
+    answer = st.radio("Pick the most accurate interpretation:", list(options.keys()),
+                      format_func=lambda x: options[x], index=None, key="reg5_ans")
+    
+    if st.button("Submit"):
+        if answer == 'A':
+            st.success("Correct — R² measures explained variance.")
+            st.session_state['reg5_correct'] = True
+        else:
+            st.error("R² is not accuracy — it's about variance explained.")
+
+    if st.session_state.get('reg5_correct', False):
+        if st.button("Next Level"):
+            go_to('reg_level6')
+
+def reg_level6():
+    back_home()
+    st.header('Level 6: MAE (Mean Absolute Error)')
+
+    st.markdown("You evaluate a regression model and get a **MAE of 3.2**.")
+
+    st.markdown("What does this tell you?")
+
+    options = {
+        'A': "The model is 3.2% off on average.",
+        'B': "The average prediction is off by 3.2 units.",
+        'C': "The model correctly predicts 3.2 values.",
+        'D': "The R² score is 3.2."
+    }
+
+    answer = st.radio("Pick the best interpretation:", list(options.keys()),
+                      format_func=lambda x: options[x], index=None, key="reg6_ans")
+    
+    if st.button("Submit"):
+        if answer == 'B':
+            st.success("Correct — MAE measures average absolute error in the same units as the target.")
+            st.session_state['reg6_correct'] = True
+        else:
+            st.error("MAE isn’t a percentage or accuracy score. It tells how far off predictions are on average.")
+
+    if st.session_state.get('reg6_correct', False):
+        if st.button("Next Level"):
+            go_to('reg_level7')
+
+def reg_level7():
+    back_home()
+    st.header('Level 7: Log Transforming to Linearize')
+
+    st.markdown("You plot a scatterplot of income vs. home price and see a strong curve, not a line.")
+
+    st.markdown("You apply a log transformation to `home_price` and the result becomes linear.")
+
+    options = {
+        'A': "The relationship is exponential, and log transformation made it linear.",
+        'B': "The data was originally linear, and log reversed it.",
+        'C': "Log transformation is only for normalizing features.",
+        'D': "This means `income` is the log of `home_price`."
+    }
+
+    answer = st.radio("Which is the best explanation?", list(options.keys()),
+                      format_func=lambda x: options[x], index=None, key="reg7_ans")
+    
+    if st.button("Submit"):
+        if answer == 'A':
+            st.success("Yep! Exponential relationships can be made linear with a log transformation.")
+            st.session_state['reg7_correct'] = True
+        else:
+            st.error("Remember: log is often used to linearize curved patterns in data.")
+
+    if st.session_state.get('reg7_correct', False):
+        if st.button("Next Level"):
+            go_to('reg_level8')
+
+def reg_level8():
+    back_home()
+    st.header('Level 8: Minimizing Error Curve')
+
+    st.markdown("You're fitting a model and plotting the loss (error) over iterations.")
+
+    st.markdown("What does the point at the bottom of the loss curve represent?")
+
+    options = {
+        'A': "Where the model is overfitting.",
+        'B': "Where the model generalizes perfectly.",
+        'C': "Where training error equals testing error.",
+        'D': "The point of minimum training loss (error)."
+    }
+
+    answer = st.radio("Pick the best interpretation:", list(options.keys()),
+                      format_func=lambda x: options[x], index=None, key="reg8_ans")
+    
+    if st.button("Submit"):
+        if answer == 'D':
+            st.success("Correct — the minimum of the loss curve is where training loss is lowest.")
+            st.session_state['reg8_correct'] = True
+        else:
+            st.error("Loss curves show error values — this is about minimizing them, not perfect prediction.")
+
+    if st.session_state.get('reg8_correct', False):
+        if st.button("Next Level"):
+            go_to('reg_level9')
+
+def reg_level9():
+    back_home()
+    st.header('Level 9: Multiple Regression w/ Interaction')
+
+    st.markdown("You train a multiple regression model with features `age`, `income`, and their interaction (`age * income`).")
+
+    st.markdown("Why might including the interaction term improve the model?")
+
+    options = {
+        'A': "It adds nonlinearity by default.",
+        'B': "It captures how age modifies the effect of income (and vice versa).",
+        'C': "Interaction terms help models train faster.",
+        'D': "It's always better to add all possible feature combinations."
+    }
+
+    answer = st.radio("Pick the best explanation:", list(options.keys()),
+                      format_func=lambda x: options[x], index=None, key="reg9_ans")
+    
+    if st.button("Submit"):
+        if answer == 'B':
+            st.success("Correct — interaction terms help capture feature interdependence.")
+            st.session_state['reg9_correct'] = True
+        else:
+            st.error("Interaction terms are for modeling combined effects, not training speed or nonlinearity by default.")
+
+    if st.session_state.get('reg9_correct', False):
+        if st.button("Back to Regression Home"):
+            go_to('reg_home')
+
+page = st.session_state.page
+
+if page == 'home':
+    home()
+elif page == 'tbl_home':
+    tbl_home()
+elif page == 'tbl_level1':
+    tbl_level1()
+elif page == 'tbl_level2':
+    tbl_level2()
+elif page == 'tbl_level3':
+    tbl_level3()
+elif page == 'tbl_level4':
+    tbl_level4()
+elif page == 'tbl_level5':
+    tbl_level5()
+elif page == 'tbl_level6':
+    tbl_level6()
+elif page == 'tbl_level7':
+    tbl_level7()
+elif page == 'tbl_level8':
+    tbl_level8()
+elif page == 'tbl_level9':
+    tbl_level9()
+elif page == 'vis_home':
+    vis_home()
+elif page == 'vis_level1':
+    vis_level1()
+elif page == 'vis_level2':
+    vis_level2()
+elif page == 'vis_level3':
+    vis_level3()
+elif page == 'vis_level4':
+    vis_level4()
+elif page == 'vis_level5':
+    vis_level5()
+elif page == 'vis_level6':
+    vis_level6()
+elif page == 'vis_level7':
+    vis_level7()
+elif page == 'vis_level8':
+    vis_level8()
+elif page == 'vis_level9':
+    vis_level9()
+elif page == 'reg_home':
+    reg_home()
+elif page == 'reg_level1':
+    reg_level1()
+elif page == 'reg_level2':
+    reg_level2()
+elif page == 'reg_level3':
+    reg_level3()
+elif page == 'reg_level4':
+    reg_level4()
+elif page == 'reg_level5':
+    reg_level5()
+elif page == 'reg_level6':
+    reg_level6()
+elif page == 'reg_level7':
+    reg_level7()
+elif page == 'reg_level8':
+    reg_level8()
+elif page == 'reg_level9':
+    reg_level9()
+else:
+    st.write("Unknown page, returning home.")
+    go_to('home')
